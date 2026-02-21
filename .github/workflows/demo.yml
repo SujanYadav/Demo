@@ -1,35 +1,15 @@
+name: Deploy to AKS
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up SSH key
-      run: |
-        mkdir -p ~/.ssh
-        # This printf format ensures the BEGIN/END lines and newlines are preserved exactly
-        printf "%s\n" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
-
-    - name: Verify file location
-      run: ls -la # This will prove test.txt is in the root
-    - name: Copy file to Azure VM
-      run: |
-        # Added -o IdentitiesOnly=yes to force it to use your key, not the runner's default
-        scp -v -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519 ./test.txt \
-          ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/test.txt
-
-    - name: Test SSH command
-      run: |
-        ssh -i ~/.ssh/id_ed25519 \
-        ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} \
-        "ls -l /home/${{ secrets.VM_USER }}/test.txt"
+      - uses: actions/checkout@v4
+      # ... add the Azure Login, Get Context, and Deploy steps here ...
