@@ -19,6 +19,8 @@ jobs:
         chmod 600 ~/.ssh/id_ed25519
         ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
+    - name: Verify file location
+      run: ls -la # This will prove test.txt is in the root
     - name: Copy file to Azure VM
       run: |
         scp -i ~/.ssh/id_ed25519 ./test.txt \
