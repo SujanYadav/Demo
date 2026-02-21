@@ -1,3 +1,0 @@
-Hi,
-
-Welcome and you have successfully push file from GITHUB to Azure VM
