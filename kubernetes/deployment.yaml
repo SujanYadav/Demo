@@ -14,5 +14,7 @@
 
       - name: Send File to Pod
         run: |
-          POD_NAME=$(kubectl get pods -l app=my-app -o jsonpath='{.items[0].metadata.name}')
+          # Only get the name of a pod that is actually in the 'Running' phase
+          POD_NAME=$(kubectl get pods -l app=my-app --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}')
+          echo "Sending file to pod: $POD_NAME"
           kubectl cp ./test.txt $POD_NAME:/usr/share/nginx/html/test.txt
