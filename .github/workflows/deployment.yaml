@@ -1,37 +1,21 @@
-name: Deploy to AKS
-on:
-  push:
-    branches: [ "main" ]
-
-permissions:
-  id-token: write
-  contents: read
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Get AKS Context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: ${{ vars.AZURE_RESOURCE_GROUP }}
-          cluster-name: ${{ vars.AZURE_CLUSTER_NAME }}
-
-      - name: Deploy Pod to AKS
-        run: |
-          kubectl apply -f kubernetes/deployment.yaml
-          kubectl wait --for=condition=ready pod -l app=my-app --timeout=60s
-
-      - name: Send File to Pod
-        run: |
-          POD_NAME=$(kubectl get pods -l app=my-app --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}')
-          kubectl cp ./test.txt $POD_NAME:/usr/share/nginx/html/test.txt
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
