@@ -1,20 +1,21 @@
-# ... (after the Azure Login step we wrote before) ...
-
-      - name: Get AKS Context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: ${{ vars.AZURE_RESOURCE_GROUP }}
-          cluster-name: ${{ vars.AZURE_CLUSTER_NAME }}
-
-      - name: Deploy Pod to AKS
-        run: |
-          kubectl apply -f kubernetes/deployment.yaml
-          # Wait until the pod is ready (up to 60 seconds)
-          kubectl wait --for=condition=ready pod -l app=my-app --timeout=60s
-
-      - name: Send File to Pod
-        run: |
-          # Only get the name of a pod that is actually in the 'Running' phase
-          POD_NAME=$(kubectl get pods -l app=my-app --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}')
-          echo "Sending file to pod: $POD_NAME"
-          kubectl cp ./test.txt $POD_NAME:/usr/share/nginx/html/test.txt
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
