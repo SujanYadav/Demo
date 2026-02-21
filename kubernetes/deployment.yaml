@@ -9,9 +9,8 @@
       - name: Deploy Pod to AKS
         run: |
           kubectl apply -f kubernetes/deployment.yaml
-          
-          # Wait 10 seconds for the pod to start
-          sleep 10 
+          # Wait until the pod is ready (up to 60 seconds)
+          kubectl wait --for=condition=ready pod -l app=my-app --timeout=60s
 
       - name: Send File to Pod
         run: |
